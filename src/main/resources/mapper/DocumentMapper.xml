@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.mapper.DocumentMapper">
+    <resultMap id="documentResultMap" type="document">
+        <id property="id" column="ID"></id>
+        <result property="title" column="TITLE"></result>
+        <result property="fileName" column="FILE_NAME"></result>
+        <result property="remark" column="REMARK"></result>
+        <result property="createDate" column="CREATE_DATE" javaType="java.util.Date"></result>
+        <association property="user" column="USER_ID" javaType="user" fetchType="eager" select="com.ken.mapper.UserMapper.selectUserById"></association>
+    </resultMap>
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="document">
+        INSERT INTO DOCUMENT(TITLE,FILE_NAME,REMARK,USER_ID) VALUES (#{title},#{fileName},#{remark},#{user.id})
+    </insert>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM DOCUMENT WHERE ID=#{id}
+    </delete>
+
+    <update id="update" parameterType="document">
+        UPDATE DOCUMENT SET TITLE=#{title},FILE_NAME=#{fileName},REMARK=#{remark},USER_ID=#{user.id} WHERE ID=#{id}
+    </update>
+
+    <select id="selectById" resultMap="documentResultMap" parameterType="int">
+        SELECT * FROM DOCUMENT WHERE ID=#{id}
+    </select>
+    <select id="selectByPage" resultMap="documentResultMap" parameterType="hashmap">
+        SELECT * FROM DOCUMENT
+        <where>
+            <if test="document!=null">
+                <if test="document.title!=null and document.title!=''">
+                    <bind name="like" value="'%'+document.title+'%'"></bind>
+                    TITLE LIKE #{like}
+                </if>
+            </if>
+        </where>
+        <if test="pageModel!=null">
+            LIMIT #{pageModel.firstLimitParam},#{pageModel.pageSize}
+        </if>
+    </select>
+
+    <select id="count" resultType="int" parameterType="hashmap">
+        SELECT COUNT(*) FROM DOCUMENT
+        <where>
+            <if test="document!=null">
+                <if test="document.title!=null and document.title!=''">
+                    <bind name="like" value="'%'+document.title+'%'"></bind>
+                    TITLE LIKE #{like}
+                </if>
+            </if>
+        </where>
+    </select>
+</mapper>

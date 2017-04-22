@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.mapper.UserMapper">
+    <resultMap id="userResultMap" type="user">
+        <id property="id" column="ID"></id>
+        <result property="loginName" column="LOGIN_NAME"></result>
+        <result property="password" column="PASSWORD"></result>
+        <result property="userStatus" column="STATUS"></result>
+        <result property="createDate" column="CREATE_DATE"></result>
+        <result property="userName" column="USERNAME"></result>
+    </resultMap>
+
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id" parameterType="user">
+        INSERT INTO USERINFO(LOGIN_NAME,PASSWORD,STATUS,USERNAME) VALUES (#{loginName},#{password},#{userStatus},#{userName})
+    </insert>
+
+    <select id="selectUserByLoginNameAndPassword" resultMap="userResultMap" parameterType="map">
+        SELECT * FROM USERINFO WHERE LOGIN_NAME=#{loginName} AND PASSWORD=#{password}
+    </select>
+    <select id="selectUserById" resultMap="userResultMap" parameterType="int">
+        SELECT * FROM USERINFO WHERE ID=#{id}
+    </select>
+    <select id="selectByPage" resultMap="userResultMap" parameterType="hashmap">
+        SELECT * FROM USERINFO
+        <where>
+            <if test="user!=null">
+                <if test="user.userName!=null and user.userName!=''">
+                    <bind name="likeUserName" value="'%'+user.userName+'%'"></bind>
+                    USERNAME LIKE #{likeUserName}
+                </if>
+                <if test="user.userStatus!=null and user.userStatus!=0">
+                    AND STATUS=#{user.userStatus}
+                </if>
+            </if>
+        </where>
+        <if test="pageModel!=null">
+            LIMIT #{pageModel.firstLimitParam},#{pageModel.pageSize}
+        </if>
+    </select>
+
+    <select id="count" resultType="int" parameterType="hashmap">
+        SELECT COUNT(*) FROM USERINFO
+        <where>
+            <if test="user!=null">
+                <if test="user.userName!=null and user.userName!=''">
+                    <bind name="likeUserName" value="'%'+user.userName+'%'"></bind>
+                    USERNAME LIKE #{likeUserName}
+                </if>
+                <if test="user.userStatus!=null and user.userStatus!=0">
+                    AND STATUS=#{user.userStatus}
+                </if>
+            </if>
+        </where>
+    </select>
+</mapper>

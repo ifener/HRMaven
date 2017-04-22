@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.mapper.EmployeeMapper">
+    <resultMap id="employeeResultMap" type="employee">
+        <id property="id" column="ID"></id>
+        <result property="employeeName" column="EMPLOYEE_NAME"></result>
+        <result property="cardId" column="CARD_ID"></result>
+        <result property="address" column="ADDRESS"></result>
+        <result property="postCode" column="POST_CODE"></result>
+        <result property="tel" column="TEL"></result>
+        <result property="phone" column="PHONE"></result>
+        <result property="qq" column="QQ"></result>
+        <result property="email" column="EMAIL"></result>
+        <result property="sex" column="SEX"></result>
+        <result property="party" column="PARTY"></result>
+        <result property="birthday" column="BIRTHDAY" javaType="java.util.Date"></result>
+        <result property="race" column="RACE"></result>
+        <result property="education" column="EDUCATION"></result>
+        <result property="specialty" column="SPECIALTY"></result>
+        <result property="hobby" column="HOBBY"></result>
+        <result property="remark" column="REMARK"></result>
+        <result property="createDate" column="CREATE_DATE"></result>
+        <association property="department" javaType="department" column="DEPT_ID" fetchType="eager" select="com.ken.mapper.DepartmentMapper.selectById"></association>
+        <association property="position" javaType="position" column="POSITION_ID" fetchType="eager" select="com.ken.mapper.PositionMapper.selectById"></association>
+    </resultMap>
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="employee">
+        INSERT INTO EMPLOYEE(DEPT_ID,POSITION_ID,EMPLOYEE_NAME,CARD_ID,ADDRESS,POST_CODE,TEL,PHONE,QQ,EMAIL,SEX,PARTY,BIRTHDAY,RACE,EDUCATION,SPECIALTY,HOBBY,REMARK)
+        VALUES (#{department.id},#{position.id},#{employeeName},#{cardId},#{address},#{postCode},#{tel},#{phone},#{qq},#{email},#{sex},#{party},#{birthday},#{race},#{education},#{specialty},#{hobby},#{remark})
+    </insert>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM EMPLOYEE WHERE ID=#{id}
+    </delete>
+
+    <update id="update" parameterType="employee">
+        UPDATE EMPLOYEE
+        SET DEPT_ID=#{department.id},
+        POSITION_ID=#{position.id},
+        EMPLOYEE_NAME=#{employeeName},
+        CARD_ID=#{cardId},
+        ADDRESS=#{address},
+        POST_CODE=#{postCode},
+        TEL=#{tel},
+        PHONE=#{phone},
+        QQ=#{qq},
+        EMAIL=#{email},
+        SEX=#{sex},
+        PARTY=#{party},
+        BIRTHDAY=#{birthday},
+        RACE=#{race},
+        EDUCATION=#{education},SPECIALTY=#{specialty},HOBBY=#{hobby},REMARK=#{remark} WHERE ID=#{id}
+    </update>
+
+
+    <select id="selectById" resultMap="employeeResultMap" parameterType="int">
+        SELECT * FROM EMPLOYEE WHERE ID=#{id}
+    </select>
+    <select id="selectByPage" resultMap="employeeResultMap" parameterType="hashmap">
+        SELECT * FROM EMPLOYEE
+        <where>
+            <if test="employee!=null">
+                <if test="employee.department!=null and employee.department.id>0">
+                    DEPT_ID=#{employee.department.id}
+                </if>
+                <if test="employee.position!=null and employee.position.id>0">
+                    AND POSITION_ID=#{employee.position.id}
+                </if>
+                <if test="employee.employeeName!=null and employee.employeeName!=''">
+                    <bind name="like" value="'%'+employee.employeeName+'%'"></bind>
+                    AND EMPLOYEE_NAME LIKE #{like}
+                </if>
+                <if test="employee.phone!=null and employee.phone!=''">
+                    <bind name="like" value="'%'+employee.phone+'%'"></bind>
+                    AND PHONE LIKE #{like}
+                </if>
+                <if test="employee.cardId!=null and employee.cardId!=''">
+                    <bind name="like" value="'%'+employee.cardId+'%'"></bind>
+                    AND CARD_ID LIKE #{like}
+                </if>
+                <if test="employee.sex!=null and employee.sex!=''">
+                    AND SEX=#{employee.sex}
+                </if>
+            </if>
+        </where>
+        <if test="pageModel!=null">
+            LIMIT #{pageModel.firstLimitParam},#{pageModel.pageSize}
+        </if>
+    </select>
+
+    <select id="count" resultType="int" parameterType="hashmap">
+        SELECT COUNT(*) FROM EMPLOYEE
+        <where>
+            <if test="employee!=null">
+                <if test="employee.department!=null and employee.department.id>0">
+                    DEPT_ID=#{employee.department.id}
+                </if>
+                <if test="employee.position!=null and employee.position.id>0">
+                    AND POSITION_ID=#{employee.position.id}
+                </if>
+                <if test="employee.employeeName!=null and employee.employeeName!=''">
+                    <bind name="like" value="'%'+employee.employeeName+'%'"></bind>
+                    AND EMPLOYEE_NAME LIKE #{like}
+                </if>
+                <if test="employee.phone!=null and employee.phone!=''">
+                    <bind name="like" value="'%'+employee.phone+'%'"></bind>
+                    AND PHONE LIKE #{like}
+                </if>
+                <if test="employee.cardId!=null and employee.cardId!=''">
+                    <bind name="like" value="'%'+employee.cardId+'%'"></bind>
+                    AND CARD_ID LIKE #{like}
+                </if>
+                <if test="employee.sex!=null and employee.sex!=''">
+                    AND SEX=#{employee.sex}
+                </if>
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.mapper.NoticeMapper">
+    <resultMap id="noticeResultMap" type="notice">
+        <id property="id" column="ID"></id>
+        <result property="title" column="TITLE"></result>
+        <result property="content" column="CONTENT"></result>
+        <result property="createDate" column="CREATE_DATE" javaType="java.util.Date"></result>
+        <association property="user" column="USER_ID" javaType="user" fetchType="eager" select="com.ken.mapper.UserMapper.selectUserById"></association>
+    </resultMap>
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="notice">
+        INSERT INTO NOTICE(TITLE,CONTENT,USER_ID) VALUES (#{title},#{content},#{user.id})
+    </insert>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM NOTICE WHERE ID=#{id}
+    </delete>
+
+    <update id="update" parameterType="notice">
+        UPDATE NOTICE SET TITLE=#{title},CONTENT=#{content},USER_ID=#{user.id} WHERE ID=#{id}
+    </update>
+
+    <select id="selectById" resultMap="noticeResultMap" parameterType="int">
+        SELECT * FROM NOTICE WHERE ID=#{id}
+    </select>
+    <select id="selectByPage" resultMap="noticeResultMap" parameterType="hashmap">
+        SELECT * FROM NOTICE
+        <where>
+            <if test="notice!=null">
+                <if test="notice.title!=null and notice.title!=''">
+                    <bind name="like" value="'%'+notice.title+'%'"></bind>
+                    TITLE LIKE #{like}
+                </if>
+            </if>
+        </where>
+        <if test="pageModel!=null">
+            LIMIT #{pageModel.firstLimitParam},#{pageModel.pageSize}
+        </if>
+    </select>
+
+    <select id="count" resultType="int" parameterType="hashmap">
+        SELECT COUNT(*) FROM NOTICE
+        <where>
+            <if test="notice!=null">
+                <if test="notice.title!=null and notice.title!=''">
+                    <bind name="like" value="'%'+notice.title+'%'"></bind>
+                    TITLE LIKE #{like}
+                </if>
+            </if>
+        </where>
+    </select>
+</mapper>

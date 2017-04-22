@@ -1,0 +1,9 @@
+package com.ken.mapper;
+
+import com.ken.entity.Employee;
+
+/**
+ * Created by it on 13/04/2017.
+ */
+public interface EmployeeMapper extends BaseMapper<Employee> {
+}
